@@ -1,0 +1,257 @@
+
+import React, { useState } from 'react';
+import { MainLayout } from '@/components/layout/MainLayout';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Search, Filter } from 'lucide-react';
+
+interface Request {
+  id: string;
+  title: string;
+  location: string;
+  requester: string;
+  status: 'pending' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  date: string;
+  assignedTo?: string;
+}
+
+const statusConfig = {
+  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' },
+  in_progress: { label: 'In Progress', color: 'bg-blue-100 text-blue-800 hover:bg-blue-200' },
+  resolved: { label: 'Resolved', color: 'bg-green-100 text-green-800 hover:bg-green-200' },
+  closed: { label: 'Closed', color: 'bg-gray-100 text-gray-800 hover:bg-gray-200' },
+};
+
+const priorityConfig = {
+  low: { label: 'Low', color: 'bg-green-100 text-green-800' },
+  medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
+  high: { label: 'High', color: 'bg-red-100 text-red-800' },
+};
+
+const mockRequests: Request[] = [
+  {
+    id: "REQ-001",
+    title: "Broken monitor",
+    location: "Computer Lab 3",
+    requester: "John Smith",
+    status: "pending",
+    priority: "high",
+    date: "Apr 6, 2025",
+  },
+  {
+    id: "REQ-002",
+    title: "Software installation",
+    location: "Faculty Room",
+    requester: "Sarah Johnson",
+    status: "in_progress",
+    priority: "medium",
+    date: "Apr 5, 2025",
+    assignedTo: "Tech Support",
+  },
+  {
+    id: "REQ-003", 
+    title: "Printer not working",
+    location: "Library",
+    requester: "Michael Brown",
+    status: "resolved",
+    priority: "medium",
+    date: "Apr 4, 2025",
+    assignedTo: "Tech Support",
+  },
+  {
+    id: "REQ-004",
+    title: "Network connectivity",
+    location: "Admin Office",
+    requester: "Emma Wilson",
+    status: "in_progress",
+    priority: "high",
+    date: "Apr 4, 2025",
+    assignedTo: "Network Admin",
+  },
+  {
+    id: "REQ-005",
+    title: "Projector bulb replacement",
+    location: "Lecture Hall 1",
+    requester: "David Lee",
+    status: "pending",
+    priority: "low",
+    date: "Apr 3, 2025",
+  },
+  {
+    id: "REQ-006",
+    title: "Missing keyboard",
+    location: "Computer Lab 2",
+    requester: "Lisa Martinez",
+    status: "closed",
+    priority: "low",
+    date: "Apr 2, 2025",
+    assignedTo: "Tech Support",
+  },
+  {
+    id: "REQ-007",
+    title: "Operating system crash",
+    location: "Student Center",
+    requester: "Robert Taylor",
+    status: "resolved",
+    priority: "high",
+    date: "Apr 1, 2025",
+    assignedTo: "Tech Support",
+  },
+  {
+    id: "REQ-008",
+    title: "Wi-Fi connectivity issues",
+    location: "Dormitory B",
+    requester: "Jennifer Garcia",
+    status: "pending",
+    priority: "medium",
+    date: "Mar 31, 2025",
+  },
+  {
+    id: "REQ-009",
+    title: "Scanner not working",
+    location: "Admin Office",
+    requester: "Daniel Anderson",
+    status: "resolved",
+    priority: "medium",
+    date: "Mar 30, 2025",
+    assignedTo: "Tech Support",
+  },
+  {
+    id: "REQ-010",
+    title: "Smartboard calibration",
+    location: "Classroom 201",
+    requester: "Michelle Wilson",
+    status: "closed",
+    priority: "low",
+    date: "Mar 29, 2025",
+    assignedTo: "Tech Support",
+  },
+];
+
+const RequestsList: React.FC = () => {
+  const [filter, setFilter] = useState<string>('all');
+  const [search, setSearch] = useState<string>('');
+
+  const filteredRequests = mockRequests.filter((request) => {
+    const matchesSearch = 
+      request.title.toLowerCase().includes(search.toLowerCase()) || 
+      request.location.toLowerCase().includes(search.toLowerCase()) || 
+      request.requester.toLowerCase().includes(search.toLowerCase()) || 
+      request.id.toLowerCase().includes(search.toLowerCase());
+      
+    const matchesFilter = filter === 'all' || request.status === filter;
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  return (
+    <MainLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">All Repair Requests</h1>
+          <Link to="/new-request">
+            <Button>New Request</Button>
+          </Link>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 items-end">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search requests..."
+              className="pl-8"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        <div className="border rounded-md overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Request</TableHead>
+                <TableHead className="hidden md:table-cell">Requester</TableHead>
+                <TableHead className="hidden md:table-cell">Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead className="hidden sm:table-cell">Date</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRequests.map((request) => (
+                <TableRow key={request.id}>
+                  <TableCell className="font-medium">{request.id}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{request.title}</div>
+                    <div className="text-sm text-muted-foreground md:hidden">
+                      {request.location} • {request.requester}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{request.requester}</TableCell>
+                  <TableCell className="hidden md:table-cell">{request.location}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={cn('font-normal', statusConfig[request.status].color)}>
+                      {statusConfig[request.status].label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={cn('font-normal', priorityConfig[request.priority].color)}>
+                      {priorityConfig[request.priority].label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-muted-foreground">{request.date}</TableCell>
+                  <TableCell className="text-right">
+                    <Link to={`/requests/${request.id}`}>
+                      <Button variant="ghost" size="sm">
+                        View
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default RequestsList;
