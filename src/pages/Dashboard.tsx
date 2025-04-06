@@ -4,7 +4,7 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentRequests } from '@/components/dashboard/RecentRequests';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -58,6 +58,8 @@ const mockRequests = [
 ];
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
     <MainLayout>
       <div className="grid gap-6">
@@ -77,6 +79,7 @@ const Dashboard: React.FC = () => {
             value="352" 
             icon={<Laptop className="h-5 w-5 text-primary" />} 
             description="All registered IT assets"
+            onClick={() => navigate('/assets')}
           />
           <StatCard 
             title="Pending Requests" 
