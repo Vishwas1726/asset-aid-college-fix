@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import {
   Table,
@@ -32,6 +32,8 @@ interface Request {
   priority: 'low' | 'medium' | 'high';
   date: string;
   assignedTo?: string;
+  description?: string;
+  issueType?: string;
 }
 
 const statusConfig = {
@@ -47,6 +49,7 @@ const priorityConfig = {
   high: { label: 'High', color: 'bg-red-100 text-red-800' },
 };
 
+// Initial mock data
 const mockRequests: Request[] = [
   {
     id: "REQ-001",
@@ -150,8 +153,27 @@ const mockRequests: Request[] = [
 const RequestsList: React.FC = () => {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
+  const [requests, setRequests] = useState<Request[]>([]);
 
-  const filteredRequests = mockRequests.filter((request) => {
+  useEffect(() => {
+    // Get requests from localStorage if available
+    const storedRequests = localStorage.getItem('repairRequests');
+    
+    if (storedRequests) {
+      const parsedRequests = JSON.parse(storedRequests);
+      // Combine with mock data, ensuring no duplicates by ID
+      const existingIds = new Set(mockRequests.map(req => req.id));
+      const uniqueStoredRequests = parsedRequests.filter(
+        (req: Request) => !existingIds.has(req.id)
+      );
+      
+      setRequests([...uniqueStoredRequests, ...mockRequests]);
+    } else {
+      setRequests(mockRequests);
+    }
+  }, []);
+
+  const filteredRequests = requests.filter((request) => {
     const matchesSearch = 
       request.title.toLowerCase().includes(search.toLowerCase()) || 
       request.location.toLowerCase().includes(search.toLowerCase()) || 
@@ -215,37 +237,45 @@ const RequestsList: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRequests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell className="font-medium">{request.id}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{request.title}</div>
-                    <div className="text-sm text-muted-foreground md:hidden">
-                      {request.location} • {request.requester}
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{request.requester}</TableCell>
-                  <TableCell className="hidden md:table-cell">{request.location}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={cn('font-normal', statusConfig[request.status].color)}>
-                      {statusConfig[request.status].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={cn('font-normal', priorityConfig[request.priority].color)}>
-                      {priorityConfig[request.priority].label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell text-muted-foreground">{request.date}</TableCell>
-                  <TableCell className="text-right">
-                    <Link to={`/requests/${request.id}`}>
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
-                    </Link>
+              {filteredRequests.length > 0 ? (
+                filteredRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">{request.id}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{request.title}</div>
+                      <div className="text-sm text-muted-foreground md:hidden">
+                        {request.location} • {request.requester}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{request.requester}</TableCell>
+                    <TableCell className="hidden md:table-cell">{request.location}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn('font-normal', statusConfig[request.status].color)}>
+                        {statusConfig[request.status].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn('font-normal', priorityConfig[request.priority].color)}>
+                        {priorityConfig[request.priority].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">{request.date}</TableCell>
+                    <TableCell className="text-right">
+                      <Link to={`/requests/${request.id}`}>
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    No requests found. Create a new request to get started.
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>

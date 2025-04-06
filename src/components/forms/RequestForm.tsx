@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const formSchema = z.object({
   assetId: z.string().min(1, { message: "Asset ID is required" }),
@@ -22,7 +23,16 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Function to generate a request ID
+const generateRequestId = () => {
+  // Generate a simple ID in format REQ-XXX where XXX is a random 3-digit number
+  const randomNum = Math.floor(100 + Math.random() * 900);
+  return `REQ-${randomNum}`;
+};
+
 export const RequestForm: React.FC = () => {
+  const navigate = useNavigate();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,9 +46,37 @@ export const RequestForm: React.FC = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log(data);
+    // Create a new request object
+    const newRequest = {
+      id: generateRequestId(),
+      title: `Issue with ${data.assetType} - ${data.assetId}`,
+      location: data.location,
+      requester: "Current User", // In a real app, this would come from auth context
+      status: "pending",
+      priority: data.priority,
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+      description: data.description,
+      issueType: data.issueType
+    };
+    
+    console.log("Creating new request:", newRequest);
+    
+    // In a production app, we would store this in a database via an API
+    // For now, we'll store it in localStorage so it persists between page refreshes
+    const existingRequests = JSON.parse(localStorage.getItem('repairRequests') || '[]');
+    const updatedRequests = [newRequest, ...existingRequests];
+    localStorage.setItem('repairRequests', JSON.stringify(updatedRequests));
+    
+    // Show success message
     toast.success("Request submitted successfully!");
+    
+    // Reset form
     form.reset();
+    
+    // Navigate to requests list after a short delay
+    setTimeout(() => {
+      navigate('/requests');
+    }, 1500);
   };
 
   return (
