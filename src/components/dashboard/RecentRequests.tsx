@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Table,
@@ -13,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { sortRequestsByPriority } from '@/utils/requestUtils';
 
 interface Request {
   id: string;
@@ -41,6 +41,8 @@ interface RecentRequestsProps {
 }
 
 export const RecentRequests: React.FC<RecentRequestsProps> = ({ requests }) => {
+  const sortedRequests = sortRequestsByPriority(requests);
+  
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -62,7 +64,7 @@ export const RecentRequests: React.FC<RecentRequestsProps> = ({ requests }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.map((request) => (
+              {sortedRequests.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell className="font-medium">{request.title}</TableCell>
                   <TableCell>{request.location}</TableCell>

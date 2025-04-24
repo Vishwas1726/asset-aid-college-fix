@@ -9,6 +9,7 @@ import NewRequest from "./pages/NewRequest";
 import RequestsList from "./pages/RequestsList";
 import AssignedRequests from "./pages/AssignedRequests";
 import AssetList from "./pages/AssetList";
+import History from "./pages/History";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/requests" element={<RequestsList />} />
           <Route path="/assigned-requests" element={<AssignedRequests />} />
           <Route path="/assets" element={<AssetList />} />
+          <Route path="/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

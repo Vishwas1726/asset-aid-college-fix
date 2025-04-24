@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { sortRequestsByPriority } from '@/utils/requestUtils';
 import {
   Table,
   TableBody,
@@ -207,17 +208,19 @@ const RequestsList: React.FC = () => {
     });
   };
 
-  const filteredRequests = requests.filter((request) => {
-    const matchesSearch = 
-      request.title.toLowerCase().includes(search.toLowerCase()) || 
-      request.location.toLowerCase().includes(search.toLowerCase()) || 
-      request.requester.toLowerCase().includes(search.toLowerCase()) || 
-      request.id.toLowerCase().includes(search.toLowerCase());
+  const filteredRequests = sortRequestsByPriority(
+    requests.filter((request) => {
+      const matchesSearch = 
+        request.title.toLowerCase().includes(search.toLowerCase()) || 
+        request.location.toLowerCase().includes(search.toLowerCase()) || 
+        request.requester.toLowerCase().includes(search.toLowerCase()) || 
+        request.id.toLowerCase().includes(search.toLowerCase());
+        
+      const matchesFilter = filter === 'all' || request.status === filter;
       
-    const matchesFilter = filter === 'all' || request.status === filter;
-    
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    })
+  );
 
   return (
     <MainLayout>
