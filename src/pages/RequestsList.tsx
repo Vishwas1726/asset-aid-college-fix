@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -26,7 +27,8 @@ import {
 } from "@/components/ui/select";
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Search, Filter, FileText, MapPin, Calendar } from 'lucide-react';
+import { Search, Filter, FileText, MapPin, Calendar, CheckCircle2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Request {
   id: string;
@@ -159,6 +161,11 @@ const RequestsList: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [requests, setRequests] = useState<Request[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const { toast } = useToast();
+  
+  const isAdmin = false;
+  const isTechnician = true;
+  const technicianName = "Tech Support";
 
   useEffect(() => {
     const storedRequests = localStorage.getItem('repairRequests');
@@ -175,6 +182,30 @@ const RequestsList: React.FC = () => {
       setRequests(mockRequests);
     }
   }, []);
+
+  const handleAcceptRequest = (request: Request) => {
+    if (!isTechnician) return;
+
+    const updatedRequests = requests.map(req => {
+      if (req.id === request.id) {
+        return {
+          ...req,
+          status: 'in_progress' as const,
+          assignedTo: technicianName
+        };
+      }
+      return req;
+    });
+
+    setRequests(updatedRequests);
+    localStorage.setItem('repairRequests', JSON.stringify(updatedRequests));
+    setSelectedRequest(null);
+    
+    toast({
+      title: "Request Accepted",
+      description: `You have been assigned to request ${request.id}`,
+    });
+  };
 
   const filteredRequests = requests.filter((request) => {
     const matchesSearch = 
@@ -310,6 +341,11 @@ const RequestsList: React.FC = () => {
                     {statusConfig[selectedRequest.status].label}
                   </Badge>
                 </div>
+                {selectedRequest.assignedTo && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">Assigned To:</span> {selectedRequest.assignedTo}
+                  </div>
+                )}
                 {selectedRequest.description && (
                   <div className="space-y-2">
                     <div className="font-medium text-sm">Description:</div>
@@ -317,6 +353,17 @@ const RequestsList: React.FC = () => {
                   </div>
                 )}
               </div>
+            )}
+            {isTechnician && selectedRequest && selectedRequest.status === 'pending' && (
+              <DialogFooter className="mt-4">
+                <Button
+                  onClick={() => handleAcceptRequest(selectedRequest)}
+                  className="w-full sm:w-auto"
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Accept Request
+                </Button>
+              </DialogFooter>
             )}
           </DialogContent>
         </Dialog>
