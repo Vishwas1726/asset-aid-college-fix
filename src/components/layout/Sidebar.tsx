@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -9,8 +8,8 @@ import {
   ClipboardList, 
   Clock, 
   Settings, 
-  X, 
-  Laptop 
+  Laptop,
+  CheckSquare 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,19 +20,26 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.FC<{ className?: string }>;
+  showForTechnician?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const location = useLocation();
+  const isTechnician = true; // This would come from auth in a real app
   
   const navigation: NavItem[] = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'New Request', href: '/new-request', icon: PlusCircle },
     { name: 'All Requests', href: '/requests', icon: ClipboardList },
+    { name: 'My Assigned Tasks', href: '/assigned-requests', icon: CheckSquare, showForTechnician: true },
     { name: 'Asset Inventory', href: '/assets', icon: Laptop },
     { name: 'History', href: '/history', icon: Clock },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
+
+  const filteredNavigation = navigation.filter(item => 
+    !item.showForTechnician || (item.showForTechnician && isTechnician)
+  );
 
   return (
     <div className={cn(
@@ -49,7 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open }) => {
         </div>
         
         <nav className="flex-1 px-2 py-4 space-y-1">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
               <Link

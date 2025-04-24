@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import NewRequest from "./pages/NewRequest";
 import RequestsList from "./pages/RequestsList";
+import AssignedRequests from "./pages/AssignedRequests";
 import AssetList from "./pages/AssetList";
 import NotFound from "./pages/NotFound";
 
@@ -22,8 +23,8 @@ const App = () => (
           <Route path="/" element={<Dashboard />} />
           <Route path="/new-request" element={<NewRequest />} />
           <Route path="/requests" element={<RequestsList />} />
+          <Route path="/assigned-requests" element={<AssignedRequests />} />
           <Route path="/assets" element={<AssetList />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
