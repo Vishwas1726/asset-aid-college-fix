@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,11 +19,11 @@ export const TopBar: React.FC<TopBarProps> = ({ toggleSidebar, sidebarOpen }) =>
     <div className="sticky top-0 z-30 flex h-16 items-center bg-background border-b border-border px-4">
       <Button 
         variant="ghost" 
-        size="icon" 
+        size="icon"
         onClick={toggleSidebar}
-        className="mr-2"
+        className="mr-2 md:hidden"
       >
-        {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        <Menu className="h-5 w-5" />
         <span className="sr-only">Toggle sidebar</span>
       </Button>
       

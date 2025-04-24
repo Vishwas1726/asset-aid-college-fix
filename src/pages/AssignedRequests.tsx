@@ -14,6 +14,16 @@ import { Button } from '@/components/ui/button';
 import { CheckSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Request {
   id: string;
@@ -42,6 +52,7 @@ const priorityConfig = {
 
 const AssignedRequests = () => {
   const [requests, setRequests] = useState<Request[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const { toast } = useToast();
   const technicianName = "Tech Support"; // This would come from auth in a real app
 
@@ -75,6 +86,7 @@ const AssignedRequests = () => {
         (req: Request) => req.assignedTo === technicianName && req.status === 'in_progress'
       );
       setRequests(assignedRequests);
+      setSelectedRequest(null);
 
       toast({
         title: "Request Completed",
@@ -130,7 +142,7 @@ const AssignedRequests = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleMarkComplete(request)}
+                        onClick={() => setSelectedRequest(request)}
                       >
                         <CheckSquare className="mr-2 h-4 w-4" />
                         Mark Complete
@@ -148,6 +160,23 @@ const AssignedRequests = () => {
             </TableBody>
           </Table>
         </div>
+
+        <AlertDialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mark Request as Complete</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to mark this request as complete? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => selectedRequest && handleMarkComplete(selectedRequest)}>
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </MainLayout>
   );
