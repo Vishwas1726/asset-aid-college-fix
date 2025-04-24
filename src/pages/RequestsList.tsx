@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import {
@@ -13,6 +12,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -21,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, FileText, MapPin, Calendar } from 'lucide-react';
 
 interface Request {
   id: string;
@@ -49,7 +54,6 @@ const priorityConfig = {
   high: { label: 'High', color: 'bg-red-100 text-red-800' },
 };
 
-// Initial mock data
 const mockRequests: Request[] = [
   {
     id: "REQ-001",
@@ -154,14 +158,13 @@ const RequestsList: React.FC = () => {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
   const [requests, setRequests] = useState<Request[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
 
   useEffect(() => {
-    // Get requests from localStorage if available
     const storedRequests = localStorage.getItem('repairRequests');
     
     if (storedRequests) {
       const parsedRequests = JSON.parse(storedRequests);
-      // Combine with mock data, ensuring no duplicates by ID
       const existingIds = new Set(mockRequests.map(req => req.id));
       const uniqueStoredRequests = parsedRequests.filter(
         (req: Request) => !existingIds.has(req.id)
@@ -261,11 +264,13 @@ const RequestsList: React.FC = () => {
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">{request.date}</TableCell>
                     <TableCell className="text-right">
-                      <Link to={`/requests/${request.id}`}>
-                        <Button variant="ghost" size="sm">
-                          View
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setSelectedRequest(request)}
+                      >
+                        View
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -279,6 +284,42 @@ const RequestsList: React.FC = () => {
             </TableBody>
           </Table>
         </div>
+
+        <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Request Details</DialogTitle>
+            </DialogHeader>
+            {selectedRequest && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Request ID:</span> {selectedRequest.id}
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Location:</span> {selectedRequest.location}
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Date:</span> {selectedRequest.date}
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium">Status:</span>
+                  <Badge variant="outline" className={cn('font-normal', statusConfig[selectedRequest.status].color)}>
+                    {statusConfig[selectedRequest.status].label}
+                  </Badge>
+                </div>
+                {selectedRequest.description && (
+                  <div className="space-y-2">
+                    <div className="font-medium text-sm">Description:</div>
+                    <p className="text-sm text-muted-foreground">{selectedRequest.description}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );
