@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { sortRequestsByPriority } from '@/utils/requestUtils';
@@ -149,7 +150,7 @@ const RequestsList: React.FC = () => {
               <TableRow>
                 <TableHead>ID</TableHead>
                 <TableHead>Request</TableHead>
-                <TableHead className="hidden md:table-cell">Requester</TableHead>
+                <TableHead className="hidden md:table-cell">User ID</TableHead>
                 <TableHead className="hidden md:table-cell">Location</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Priority</TableHead>
@@ -165,10 +166,10 @@ const RequestsList: React.FC = () => {
                     <TableCell>
                       <div className="font-medium">{request.title}</div>
                       <div className="text-sm text-muted-foreground md:hidden">
-                        {request.location} • {request.requester}
+                        {request.location} • {request.user_id}
                       </div>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">{request.requester}</TableCell>
+                    <TableCell className="hidden md:table-cell">{request.user_id}</TableCell>
                     <TableCell className="hidden md:table-cell">{request.location}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('font-normal', statusConfig[request.status].color)}>
